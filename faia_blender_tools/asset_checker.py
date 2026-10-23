@@ -67,6 +67,17 @@ class FAIA_OT_AssetChecker(bpy.types.Operator):
             layout.label(text="No marked assets found in scene.", icon='INFO')
             return
 
+        # ── Summary ───────────────────────────────────────────────────────
+        row = layout.row(align=True)
+        row.label(text=f"Assets: {len(assets)}", icon='SCENE_DATA')
+        row.label(text=f"Linked: {len(linked_copies)}", icon='LINKED')
+        if unexpected:
+            row.alert = True
+            row.label(text=f"Unexpected: {len(unexpected)}", icon='ERROR')
+        else:
+            row.label(text="Unexpected: 0", icon='CHECKMARK')
+        layout.separator()
+
         # ── Assets ────────────────────────────────────────────────────────
         box = layout.box()
         box.label(text=f"Assets ({len(assets)}):", icon='SCENE_DATA')
