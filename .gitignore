@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 *.pyo
 faia_blender_tools.zip
+*.bak
