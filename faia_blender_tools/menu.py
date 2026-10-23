@@ -16,7 +16,6 @@ class FAIA_MT_MainMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         layout.operator("faia.export_collection_fbx", icon='EXPORT')
-        layout.operator("faia.check_destination_files", icon='VIEWZOOM')
         layout.separator()
         layout.operator("faia.transform_checker", icon='OBJECT_DATA')
         layout.separator()

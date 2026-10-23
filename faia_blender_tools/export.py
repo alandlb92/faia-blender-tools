@@ -16,11 +16,12 @@ class FAIA_OT_ExportCollectionFBX(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=420)
+        return context.window_manager.invoke_props_dialog(self, width=440)
 
     def draw(self, context):
         layout = self.layout
         s = context.scene.faia_settings
+
         col = layout.column(align=True)
         col.label(text="Collection:")
         col.prop(s, "source_collection", text="")
@@ -29,6 +30,51 @@ class FAIA_OT_ExportCollectionFBX(bpy.types.Operator):
         col.prop(s, "destination_path", text="")
         col.separator()
         col.prop(s, "include_children")
+
+        layout.separator()
+        self._draw_file_preview(layout, s)
+
+    def _draw_file_preview(self, layout, s):
+        if s.source_collection is None or not s.destination_path:
+            layout.label(text="Set collection and destination to preview.", icon='INFO')
+            return
+
+        dest = bpy.path.abspath(s.destination_path)
+        if not os.path.isdir(dest):
+            layout.label(text="Destination folder not found.", icon='ERROR')
+            return
+
+        objects = collect_objects(s.source_collection, s.include_children)
+        if not objects:
+            layout.label(text="No compatible objects in collection.", icon='INFO')
+            return
+
+        try:
+            existing = {f.lower() for f in os.listdir(dest) if f.lower().endswith('.fbx')}
+        except Exception:
+            layout.label(text="Cannot read destination folder.", icon='ERROR')
+            return
+
+        overwrite = sorted(
+            [o for o in objects if f"{sanitize_filename(o.name)}.fbx".lower() in existing],
+            key=lambda o: o.name,
+        )
+        new_files = sorted(
+            [o for o in objects if f"{sanitize_filename(o.name)}.fbx".lower() not in existing],
+            key=lambda o: o.name,
+        )
+
+        if overwrite:
+            box = layout.box()
+            box.label(text=f"Overwrite ({len(overwrite)}):", icon='SEQUENCE_COLOR_03')
+            for obj in overwrite:
+                box.label(text=obj.name, icon='FILE')
+
+        if new_files:
+            box = layout.box()
+            box.label(text=f"New ({len(new_files)}):", icon='ADD')
+            for obj in new_files:
+                box.label(text=obj.name, icon='FILE_NEW')
 
     def execute(self, context):
         s = context.scene.faia_settings

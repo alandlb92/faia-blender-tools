@@ -8,13 +8,12 @@ bl_info = {
     "category": "Import-Export",
 }
 
-from . import props, export, check_destination, transform_checker, uv_world_scale, menu
+from . import props, export, transform_checker, uv_world_scale, menu
 
 
 def register():
     props.register()
     export.register()
-    check_destination.register()
     transform_checker.register()
     uv_world_scale.register()
     menu.register()
@@ -24,6 +23,5 @@ def unregister():
     menu.unregister()
     uv_world_scale.unregister()
     transform_checker.unregister()
-    check_destination.unregister()
     export.unregister()
     props.unregister()
