@@ -18,7 +18,7 @@ class FAIA_MT_MainMenu(bpy.types.Menu):
         layout.operator("faia.export_collection_fbx", icon='EXPORT')
         layout.separator()
         layout.operator("faia.transform_checker", icon='OBJECT_DATA')
-        layout.operator("faia.asset_checker", icon='ASSET_MANAGER')
+        layout.operator("faia.asset_checker", icon='SCENE_DATA')
         layout.separator()
         layout.menu("FAIA_MT_uv_menu", icon='UV_DATA')
 

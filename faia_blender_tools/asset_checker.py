@@ -69,7 +69,7 @@ class FAIA_OT_AssetChecker(bpy.types.Operator):
 
         # ── Assets ────────────────────────────────────────────────────────
         box = layout.box()
-        box.label(text=f"Assets ({len(assets)}):", icon='ASSET_MANAGER')
+        box.label(text=f"Assets ({len(assets)}):", icon='SCENE_DATA')
         for obj in assets:
             row = box.row()
             row.label(text=obj.name, icon='OBJECT_DATA')

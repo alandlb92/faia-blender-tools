@@ -13,6 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Inject version from tag
+        run: |
+          TAG=${GITHUB_REF_NAME#v}
+          python3 -c "
+          import re
+          tag = '${TAG}'.split('.')
+          major, minor, patch = tag[0], tag[1], tag[2]
+          path = 'faia_blender_tools/__init__.py'
+          content = open(path).read()
+          content = re.sub(
+              r'\"version\": \(\d+, \d+, \d+\)',
+              f'\"version\": ({major}, {minor}, {patch})',
+              content
+          )
+          open(path, 'w').write(content)
+          "
+
       - name: Create add-on ZIP
         run: zip -r faia_blender_tools.zip faia_blender_tools/
 
