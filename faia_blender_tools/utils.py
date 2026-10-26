@@ -41,7 +41,7 @@ def get_fbx_export_kwargs(filepath):
     return dict(
         filepath=filepath,
         use_selection=True,
-        object_types={'MESH', 'ARMATURE', 'CURVE'},
+        object_types={'MESH', 'ARMATURE', 'OTHER'},
         add_leaf_bones=False,
         embed_textures=False,
         bake_anim=False,

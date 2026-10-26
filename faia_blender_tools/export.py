@@ -66,7 +66,7 @@ class FAIA_OT_ExportCollectionFBX(bpy.types.Operator):
 
         if overwrite:
             box = layout.box()
-            box.label(text=f"Overwrite ({len(overwrite)}):", icon='SEQUENCE_COLOR_03')
+            box.label(text=f"Overwrite ({len(overwrite)}):", icon='DECORATE_OVERRIDE')
             for obj in overwrite:
                 box.label(text=obj.name, icon='FILE')
 

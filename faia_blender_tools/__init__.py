@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Faia Blender Tools",
     "author": "Faia Studio",
-    "version": (1, 0, 0),
+    "version": (1, 0, 4),
     "blender": (4, 2, 0),
     "location": "Top Bar > FAIA",
     "description": "Production tools for game studios",
