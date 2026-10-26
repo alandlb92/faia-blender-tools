@@ -16,6 +16,20 @@ class FAIA_PG_Settings(bpy.types.PropertyGroup):
         default=True,
     )
 
+    # Scene JSON Exporter
+    scene_collection: bpy.props.PointerProperty(
+        name="Scene Collection",
+        type=bpy.types.Collection,
+    )
+    assets_collection: bpy.props.PointerProperty(
+        name="Assets Collection",
+        type=bpy.types.Collection,
+    )
+    json_export_path: bpy.props.StringProperty(
+        name="Output JSON",
+        subtype='FILE_PATH',
+    )
+
     # Transform Checker (independent from export settings)
     checker_collection: bpy.props.PointerProperty(
         name="Collection",
