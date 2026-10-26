@@ -5,7 +5,6 @@ from mathutils import Vector
 
 
 def _poly_area_3d(world_verts):
-    """Area of a convex/concave polygon in 3D using fan triangulation."""
     if len(world_verts) < 3:
         return 0.0
     total = Vector((0.0, 0.0, 0.0))
@@ -17,7 +16,6 @@ def _poly_area_3d(world_verts):
 
 
 def _poly_area_2d(uv_coords):
-    """Signed area of a 2D polygon (shoelace formula)."""
     n = len(uv_coords)
     area = 0.0
     for i in range(n):
@@ -29,7 +27,7 @@ def _poly_area_2d(uv_coords):
 class FAIA_OT_UnwrapSizeBased(bpy.types.Operator):
     bl_idname = "faia.unwrap_size_based"
     bl_label = "Faia Unwrap Size Based"
-    bl_description = "Unwrap and scale UVs so that 1 tile matches a real-world size in meters"
+    bl_description = "Unwrap selected faces and scale UVs so that 1 tile matches a real-world size in meters"
     bl_options = {'REGISTER', 'UNDO'}
 
     texture_size: bpy.props.FloatProperty(
@@ -53,9 +51,10 @@ class FAIA_OT_UnwrapSizeBased(bpy.types.Operator):
             self.report({'ERROR'}, "Active object must be a Mesh in Edit Mode.")
             return {'CANCELLED'}
 
-        # Ensure at least one UV map exists
         if not obj.data.uv_layers:
             obj.data.uv_layers.new(name="UVMap")
+
+        bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.0)
 
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.active
@@ -64,19 +63,16 @@ class FAIA_OT_UnwrapSizeBased(bpy.types.Operator):
             self.report({'ERROR'}, "No active UV map.")
             return {'CANCELLED'}
 
-        # Select all and unwrap using existing seams
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.001)
-
-        # Refresh bmesh after unwrap
-        bm = bmesh.from_edit_mesh(obj.data)
-        uv_layer = bm.loops.layers.uv.active
+        selected_faces = [f for f in bm.faces if f.select]
+        if not selected_faces:
+            self.report({'ERROR'}, "Select at least one face.")
+            return {'CANCELLED'}
 
         mat = obj.matrix_world
         total_3d_area = 0.0
         total_uv_area = 0.0
 
-        for face in bm.faces:
+        for face in selected_faces:
             world_verts = [mat @ v.co for v in face.verts]
             total_3d_area += _poly_area_3d(world_verts)
             uv_coords = [loop[uv_layer].uv.copy() for loop in face.loops]
@@ -86,21 +82,19 @@ class FAIA_OT_UnwrapSizeBased(bpy.types.Operator):
             self.report({'ERROR'}, "Could not compute UV or surface areas.")
             return {'CANCELLED'}
 
-        # Scale UVs to match desired texel density
         current_density = math.sqrt(total_uv_area / total_3d_area)
         desired_density = 1.0 / self.texture_size
         k = desired_density / current_density
 
-        for face in bm.faces:
+        for face in selected_faces:
             for loop in face.loops:
                 loop[uv_layer].uv *= k
 
-        # Anchor bottom-left corner to (0, 0)
-        min_u = min(loop[uv_layer].uv.x for face in bm.faces for loop in face.loops)
-        min_v = min(loop[uv_layer].uv.y for face in bm.faces for loop in face.loops)
+        # Anchor bottom-left to (0, 0)
+        min_u = min(loop[uv_layer].uv.x for f in selected_faces for loop in f.loops)
+        min_v = min(loop[uv_layer].uv.y for f in selected_faces for loop in f.loops)
         offset = Vector((-min_u, -min_v))
-
-        for face in bm.faces:
+        for face in selected_faces:
             for loop in face.loops:
                 loop[uv_layer].uv += offset
 
